@@ -29,10 +29,10 @@ Tiga VM berjalan di jaringan private VirtualBox:
 Browser (http://192.168.56.22)
     │
     ▼
-VM Frontend  192.168.56.22  — Nginx, serve index.html
+VM Frontend  192.168.56.22  — Nginx, menampilkan index.html
     │
     ▼  fetch /api/*
-VM Backend   192.168.56.20  — Flask :5000, semua logika bisnis
+VM Backend   192.168.56.20  — Flask :5000, semua logika backend
     │
     ▼  SQL query
 VM Database  192.168.56.21  — MySQL, penyimpanan data
