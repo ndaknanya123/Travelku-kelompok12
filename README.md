@@ -99,8 +99,6 @@ travelku/
 
 ## API Endpoints
 
-Base URL: `http://192.168.56.20:5000`
-
 **Publik**
 
 ```
