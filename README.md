@@ -1,4 +1,4 @@
-# TravelKu — Sistem Reservasi Perjalanan
+# TravelKu — Sistem Reservasi Tiket
 
 Aplikasi web pemesanan tiket perjalanan yang mengintegrasikan berbagai jenis layanan transportasi dan akomodasi dalam satu platform. Dibangun dengan arsitektur tiga-tier menggunakan Vagrant untuk otomasi infrastruktur.
 
