@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelKu — Reservasi Perjalanan Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --ink:      #0d0c0a;
+  --ink-2:    #28261f;
+  --ink-3:    #6e6a60;
+  --paper:    #f9f7f2;
+  --paper-2:  #efeae0;
+  --paper-3:  #e0d9cb;
+  --gold:     #b8922e;
+  --gold-l:   #d4af55;
+  --gold-d:   #8a6a18;
+  --teal:     #1a5055;
+  --teal-l:   #267a82;
+  --coral:    #b83030;
+  --green:    #2a5e3a;
+  --blokir:   #7a1818;
+  --r:        .5rem;
+  --r-lg:     1rem;
+  --shadow:   0 2px 20px rgba(13,12,10,.08);
+  --shadow-lg:0 8px 40px rgba(13,12,10,.14);
+  --serif:    'Cormorant Garamond', Georgia, serif;
+  --sans:     'Outfit', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+  --ease:     cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--sans); background:var(--paper); color:var(--ink); overflow-x:hidden; }
+img  { display:block; max-width:100%; }
+button { cursor:pointer; border:none; font-family:inherit; }
+input,select,textarea { font-family:inherit; }
+a { text-decoration:none; color:inherit; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--paper-2); }
+::-webkit-scrollbar-thumb { background:var(--gold); border-radius:3px; }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.wrap { max-width:1200px; margin:0 auto; padding:0 2rem; }
+.hidden { display:none !important; }
+.flex   { display:flex; }
+.col    { flex-direction:column; }
+.center { align-items:center; justify-content:center; }
+.between{ justify-content:space-between; }
+.gap-1  { gap:.5rem; }
+.gap-2  { gap:1rem; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+#nav {
+  position:fixed; top:0; left:0; right:0; z-index:900;
+  background:rgba(249,247,242,.92); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--paper-3);
+  height:64px; display:flex; align-items:center;
+}
+#nav .wrap { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.logo { font-family:var(--serif); font-size:1.7rem; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+.logo b { color:var(--gold); font-weight:700; }
+.nav-mid { display:flex; gap:2.5rem; }
+.nav-mid a {
+  font-size:.78rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); cursor:pointer; transition:color .2s;
+  position:relative; padding-bottom:.25rem;
+}
+.nav-mid a::after {
+  content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+  background:var(--gold); transition:width .3s var(--ease);
+}
+.nav-mid a:hover::after, .nav-mid a.on::after { width:100%; }
+.nav-mid a:hover, .nav-mid a.on { color:var(--ink); }
+.nav-right { display:flex; gap:.6rem; align-items:center; }
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn {
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:.55rem 1.3rem; border-radius:var(--r);
+  font-size:.84rem; font-weight:500; letter-spacing:.02em;
+  transition:all .2s var(--ease); outline:none;
+}
+.btn-gold  { background:var(--gold); color:#fff; }
+.btn-gold:hover  { background:var(--gold-d); transform:translateY(-1px); box-shadow:0 4px 16px rgba(184,146,46,.3); }
+.btn-teal  { background:var(--teal); color:#fff; }
+.btn-teal:hover  { background:var(--teal-l); transform:translateY(-1px); }
+.btn-ghost { background:var(--paper-2); color:var(--ink-2); border:1px solid var(--paper-3); }
+.btn-ghost:hover { background:var(--paper-3); }
+.btn-line  { background:transparent; border:1.5px solid rgba(255,255,255,.5); color:#fff; }
+.btn-line:hover  { background:rgba(255,255,255,.1); border-color:#fff; }
+.btn-coral { background:var(--coral); color:#fff; }
+.btn-coral:hover { background:#8a2020; }
+.btn-lg  { padding:.8rem 2rem; font-size:.95rem; border-radius:var(--r-lg); }
+.btn-sm  { padding:.35rem .85rem; font-size:.76rem; }
+.btn-blk { width:100%; justify-content:center; }
+
+/* ═══════════════════════════════════════
+   FORMS
+═══════════════════════════════════════ */
+.field { margin-bottom:1rem; }
+.field label {
+  display:block; font-size:.72rem; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-bottom:.35rem;
+}
+.field input, .field select, .field textarea {
+  width:100%; padding:.7rem .95rem; border:1.5px solid var(--paper-3);
+  border-radius:var(--r); background:#fff; color:var(--ink); font-size:.9rem;
+  transition:border-color .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus { border-color:var(--gold); outline:none; }
+.field textarea { resize:vertical; min-height:70px; }
+
+/* ═══════════════════════════════════════
+   BADGES
+═══════════════════════════════════════ */
+.chip {
+  display:inline-block; padding:.18rem .6rem; border-radius:40px;
+  font-size:.68rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+}
+.chip-gold  { background:#fdf0d0; color:var(--gold-d); }
+.chip-teal  { background:#d4eaec; color:var(--teal); }
+.chip-coral { background:#fde0e0; color:var(--coral); }
+.chip-green { background:#d4eadb; color:var(--green); }
+.chip-dark  { background:var(--ink-2); color:#fff; }
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toasts { position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; display:flex; flex-direction:column; gap:.5rem; }
+.toast {
+  padding:.8rem 1.2rem; border-radius:var(--r); color:#fff;
+  font-size:.86rem; font-weight:500; max-width:320px;
+  box-shadow:var(--shadow-lg); animation:toastIn .25s ease;
+}
+.toast.ok  { background:var(--green); }
+.toast.err { background:var(--coral); }
+.toast.inf { background:var(--teal); }
+@keyframes toastIn  { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:none} }
+@keyframes toastOut { to{opacity:0;transform:translateX(16px)} }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.overlay {
+  position:fixed; inset:0; z-index:800;
+  background:rgba(13,12,10,.55); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  padding:1rem; animation:fadeIn .2s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal {
+  background:var(--paper); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-lg); width:100%; max-width:500px;
+  max-height:90vh; overflow-y:auto; animation:slideUp .25s ease;
+}
+.modal-wide { max-width:660px; }
+@keyframes slideUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+.modal-head {
+  padding:1.4rem 1.4rem 0; display:flex; align-items:flex-start; justify-content:space-between;
+}
+.modal-head h2 { font-family:var(--serif); font-size:1.55rem; font-weight:600; }
+.modal-x {
+  background:var(--paper-2); border-radius:50%; width:30px; height:30px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; color:var(--ink-3); flex-shrink:0; transition:background .2s;
+}
+.modal-x:hover { background:var(--paper-3); color:var(--ink); }
+.modal-body { padding:1.1rem 1.4rem 1.4rem; }
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+#hero {
+  padding-top:64px; min-height:100vh;
+  background:linear-gradient(150deg, #0a1e28 0%, #122a30 30%, #1a3828 60%, #0f1e14 100%);
+  position:relative; overflow:hidden; display:flex; align-items:center;
+}
+.hero-glow {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.glow {
+  position:absolute; border-radius:50%; filter:blur(90px); opacity:.2;
+  animation:pulse 8s ease-in-out infinite alternate;
+}
+.g1 { width:700px;height:700px; background:#b8922e; top:-30%;left:-15%; animation-duration:11s; }
+.g2 { width:500px;height:500px; background:#267a82; bottom:-20%;right:-10%; animation-duration:9s; }
+.g3 { width:350px;height:350px; background:#2a5e3a; top:20%;right:15%; animation-duration:13s; }
+@keyframes pulse { from{transform:scale(1) translate(0,0)} to{transform:scale(1.15) translate(20px,-15px)} }
+
+.hero-inner { position:relative; z-index:1; color:#fff; padding:4rem 0; }
+.hero-eyebrow {
+  font-size:.72rem; font-weight:500; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold-l); margin-bottom:1.4rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+.hero-eyebrow::before { content:''; width:36px; height:1px; background:var(--gold-l); flex-shrink:0; }
+.hero-h1 {
+  font-family:var(--serif); font-size:clamp(3rem,6.5vw,6rem);
+  font-weight:700; line-height:1.05; margin-bottom:1.6rem;
+  letter-spacing:-.01em;
+}
+.hero-h1 i { font-style:italic; color:var(--gold-l); }
+.hero-p { font-size:1.05rem; color:rgba(255,255,255,.65); max-width:480px; line-height:1.75; margin-bottom:2.5rem; }
+.hero-btns { display:flex; gap:.9rem; flex-wrap:wrap; margin-bottom:2.8rem; }
+
+/* Search bar */
+.searchbar {
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(12px); border-radius:var(--r-lg);
+  padding:1.1rem 1.4rem; display:grid;
+  grid-template-columns:1fr 1fr 1fr auto; gap:.9rem; align-items:end;
+  max-width:780px;
+}
+.searchbar .field { margin:0; }
+.searchbar .field label { color:rgba(255,255,255,.55); }
+.searchbar .field input, .searchbar .field select {
+  background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.15);
+  color:#fff;
+}
+.searchbar .field select option { background:#1a3828; }
+.searchbar .field input::placeholder { color:rgba(255,255,255,.4); }
+.searchbar .field input:focus, .searchbar .field select:focus { border-color:var(--gold-l); }
+
+/* ═══════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════ */
+.sec-eye { font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-d); margin-bottom:.5rem; }
+.sec-h { font-family:var(--serif); font-size:clamp(1.9rem,3.5vw,2.9rem); font-weight:700; line-height:1.1; }
+.sec-h i { font-style:italic; }
+.sec-sub { color:var(--ink-3); line-height:1.7; margin-top:.55rem; font-size:.92rem; }
+
+/* ═══════════════════════════════════════
+   PILL TABS
+═══════════════════════════════════════ */
+.pills { display:flex; gap:.45rem; flex-wrap:wrap; }
+.pill {
+  padding:.45rem 1.1rem; border-radius:40px; font-size:.8rem; font-weight:500;
+  background:var(--paper-2); color:var(--ink-3); border:none; cursor:pointer;
+  transition:all .18s;
+}
+.pill:hover { background:var(--paper-3); color:var(--ink); }
+.pill.on    { background:var(--ink); color:#fff; }
+
+/* ═══════════════════════════════════════
+   DEST GRID
+═══════════════════════════════════════ */
+#sec-dest { padding:6rem 0; }
+.dest-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:1.4rem; margin-top:2.2rem; }
+.dcard {
+  background:#fff; border-radius:var(--r-lg); overflow:hidden;
+  box-shadow:var(--shadow); cursor:pointer; transition:all .22s var(--ease);
+}
+.dcard:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); }
+.dcard-img {
+  height:190px; position:relative; overflow:hidden;
+  display:flex; align-items:flex-end; padding:.9rem;
+}
+.dcard-img-bg  { position:absolute; inset:0; transition:transform .4s var(--ease); }
+.dcard:hover .dcard-img-bg { transform:scale(1.06); }
+.dcard-veil    { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 55%); }
+.dcard-emoji   { position:absolute; top:50%; left:50%; transform:translate(-50%,-58%); font-size:3.6rem; opacity:.45; }
+.dcard-loc     { position:relative; z-index:1; color:#fff; }
+.dcard-loc h3  { font-family:var(--serif); font-size:1.15rem; font-weight:600; line-height:1.2; }
+.dcard-loc p   { font-size:.74rem; opacity:.8; margin-top:.1rem; }
+.dcard-body    { padding:.95rem 1.1rem 1.1rem; }
+.dcard-desc    { font-size:.8rem; color:var(--ink-3); line-height:1.6; margin:.45rem 0 .8rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.dcard-foot    { display:flex; align-items:center; justify-content:space-between; }
+.dcard-price   { font-family:var(--mono); font-size:.84rem; color:var(--gold-d); font-weight:500; }
+
+/* ═══════════════════════════════════════
+   LAYANAN GRID
+═══════════════════════════════════════ */
+#sec-layanan { padding:5.5rem 0; background:var(--paper-2); }
+.lay-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:1.4rem; margin-top:2.2rem; }
+.lcard {
+  background:#fff; border-radius:var(--r-lg);
+  box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column;
+  transition:all .22s var(--ease);
+}
+.lcard:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.lcard-head {
+  padding:1.1rem 1.3rem; color:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.lh-pesawat    { background:linear-gradient(130deg,#0f2a3d,#1a5068); }
+.lh-hotel      { background:linear-gradient(130deg,#2a1a4a,#5a3a8a); }
+.lh-kapal      { background:linear-gradient(130deg,#092838,#165c80); }
+.lh-bus        { background:linear-gradient(130deg,#162a0e,#2e5a1a); }
+.lh-mobil      { background:linear-gradient(130deg,#2a1606,#6a3a10); }
+.lh-paket_wisata{ background:linear-gradient(130deg,#2a0a0a,#7a2a18); }
+.lcard-icon    { font-size:1.9rem; }
+.lcard-typelbl { font-size:.66rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; opacity:.75; margin-top:.15rem; }
+.lcard-body    { padding:1.1rem 1.3rem; flex:1; }
+.lcard-name    { font-family:var(--serif); font-size:1.05rem; font-weight:600; line-height:1.2; margin-bottom:.3rem; }
+.lcard-route   { font-size:.78rem; color:var(--ink-3); display:flex; align-items:center; gap:.35rem; margin-bottom:.65rem; }
+.lcard-route .arr { color:var(--gold); }
+.lcard-desc    { font-size:.78rem; color:var(--ink-3); line-height:1.55; margin-bottom:.7rem; }
+.tags          { display:flex; flex-wrap:wrap; gap:.25rem; }
+.tag           { font-size:.67rem; padding:.18rem .5rem; background:var(--paper-2); color:var(--ink-3); border-radius:3px; }
+.lcard-foot    { padding:.9rem 1.3rem; border-top:1px solid var(--paper-2); display:flex; align-items:center; justify-content:space-between; }
+.lcard-price   { font-family:var(--mono); font-size:1rem; color:var(--gold-d); font-weight:500; }
+.lcard-price small { display:block; font-family:var(--sans); font-size:.68rem; color:var(--ink-3); font-weight:400; }
+
+/* ═══════════════════════════════════════
+   CALENDAR
+═══════════════════════════════════════ */
+.cal-wrap     { background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); overflow:hidden; }
+.cal-head     { padding:1rem 1.3rem; background:var(--ink-2); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+.cal-head h4  { font-family:var(--serif); font-size:1.1rem; font-weight:600; }
+.cal-nav      { display:flex; gap:.4rem; }
+.cal-nav button {
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(255,255,255,.1); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.95rem; transition:background .2s;
+}
+.cal-nav button:hover { background:rgba(255,255,255,.22); }
+.cal-grid     { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--paper-2); }
+.cal-lbl      { background:var(--paper); text-align:center; padding:.45rem; font-size:.66rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); }
+.cal-day      { background:#fff; min-height:52px; padding:.35rem; display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:background .15s; }
+.cal-day:hover{ background:var(--paper-2); }
+.cal-day.dim  { opacity:.3; pointer-events:none; }
+.cal-day.today .dn { background:var(--ink); color:#fff; border-radius:50%; }
+.cal-day.sel  { background:var(--gold) !important; }
+.cal-day.sel .dn { color:#fff; font-weight:600; }
+.cal-day.avail{ background:#f0fdf5; }
+.cal-day.avail:hover{ background:#d4f0de; }
+.cal-day.full { background:#fff7f7; pointer-events:none; }
+.cal-day.block{ background:repeating-linear-gradient(45deg,#fff,#fff 5px,#fdf0f0 5px,#fdf0f0 10px); pointer-events:none; }
+.cal-day.block .dn { color:var(--blokir); }
+.dn           { font-size:.86rem; font-weight:500; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
+.cdot         { width:4px; height:4px; border-radius:50%; margin-top:.1rem; }
+.cd-avail     { background:var(--green); }
+.cd-full      { background:var(--coral); }
+.cd-block     { background:var(--blokir); }
+.cal-legend   { display:flex; gap:1rem; flex-wrap:wrap; padding:.65rem 1.1rem; border-top:1px solid var(--paper-2); font-size:.7rem; color:var(--ink-3); }
+.leg          { display:flex; align-items:center; gap:.25rem; }
+.ld           { width:7px; height:7px; border-radius:50%; }
+
+/* ═══════════════════════════════════════
+   BOOKING FORM
+═══════════════════════════════════════ */
+.bsummary     { background:var(--paper-2); border-radius:var(--r); padding:.9rem 1.1rem; margin-bottom:1.1rem; }
+.bsummary h4  { font-family:var(--serif); font-size:.95rem; margin-bottom:.5rem; }
+.brow         { display:flex; justify-content:space-between; font-size:.82rem; padding:.22rem 0; border-bottom:1px dashed var(--paper-3); }
+.brow:last-child { border:none; font-weight:600; font-size:.9rem; color:var(--gold-d); margin-top:.25rem; }
+.brow span:last-child { font-family:var(--mono); }
+
+/* ═══════════════════════════════════════
+   MY RESERVATIONS
+═══════════════════════════════════════ */
+#sec-resy      { padding:5.5rem 0; }
+.resy-list     { display:flex; flex-direction:column; gap:.9rem; }
+.rcard         { background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:1.2rem 1.4rem; display:flex; gap:1.3rem; align-items:center; transition:box-shadow .2s; }
+.rcard:hover   { box-shadow:var(--shadow-lg); }
+.rcard-ico     { width:48px; height:48px; border-radius:50%; background:var(--paper-2); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+.rcard-info    { flex:1; }
+.rcard-info h4 { font-family:var(--serif); font-size:.98rem; font-weight:600; margin-bottom:.15rem; }
+.rcard-info p  { font-size:.78rem; color:var(--ink-3); }
+.rcard-right   { text-align:right; }
+.rcard-price   { font-family:var(--mono); font-size:.9rem; color:var(--gold-d); font-weight:500; }
+.rcard-code    { font-size:.68rem; color:var(--ink-3); font-family:var(--mono); margin-top:.1rem; }
+
+/* ═══════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════ */
+#sec-admin { padding:5.5rem 0; background:var(--paper-2); }
+.atabs { display:flex; gap:.4rem; border-bottom:2px solid var(--paper-3); padding-bottom:.4rem; margin-bottom:2rem; }
+.atab {
+  padding:.55rem 1.1rem; border-radius:var(--r) var(--r) 0 0;
+  font-size:.82rem; font-weight:500; background:transparent; color:var(--ink-3);
+  border:none; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; transition:all .18s;
+}
+.atab.on { color:var(--gold-d); border-bottom-color:var(--gold); }
+.apane   { display:none; }
+.apane.on{ display:block; }
+.stats   { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:1.1rem; margin-bottom:2rem; }
+.scard   { background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:1.2rem; }
+.scard .sl{ font-size:.68rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+.scard .sv{ font-family:var(--serif); font-size:1.9rem; font-weight:700; margin:.25rem 0 .05rem; }
+.scard .ss{ font-size:.74rem; color:var(--ink-3); }
+.tbl-wrap{ background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); overflow:hidden; overflow-x:auto; }
+.tbl     { width:100%; border-collapse:collapse; font-size:.8rem; }
+.tbl th  { background:var(--ink-2); color:#fff; padding:.7rem .9rem; text-align:left; font-size:.68rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+.tbl td  { padding:.7rem .9rem; border-bottom:1px solid var(--paper-2); vertical-align:middle; }
+.tbl tr:last-child td { border:none; }
+.tbl tr:hover td { background:var(--paper); }
+.aform   { background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:1.4rem; margin-bottom:1.4rem; }
+.aform h3{ font-family:var(--serif); font-size:1.15rem; margin-bottom:1rem; }
+
+/* ═══════════════════════════════════════
+   AUTH SWITCHER
+═══════════════════════════════════════ */
+.atabs-auth { display:flex; margin-bottom:1.4rem; background:var(--paper-2); border-radius:var(--r); padding:.25rem; }
+.atau       { flex:1; padding:.5rem; text-align:center; border-radius:calc(var(--r) - 1px); font-size:.84rem; font-weight:500; color:var(--ink-3); cursor:pointer; transition:all .18s; border:none; background:transparent; }
+.atau.on    { background:#fff; color:var(--ink); box-shadow:0 1px 6px rgba(0,0,0,.08); }
+
+/* ═══════════════════════════════════════
+   SPINNER / EMPTY
+═══════════════════════════════════════ */
+.spin { width:34px; height:34px; border-radius:50%; border:2.5px solid var(--paper-3); border-top-color:var(--gold); animation:rot .7s linear infinite; margin:2.5rem auto; }
+@keyframes rot { to{ transform:rotate(360deg); } }
+.empty { text-align:center; padding:3rem 1rem; color:var(--ink-3); }
+.empty .ei { font-size:2.8rem; margin-bottom:.8rem; }
+.empty p   { font-size:.86rem; }
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer { background:var(--ink); color:rgba(255,255,255,.5); padding:4rem 0 2rem; }
+.fg   { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; margin-bottom:3rem; }
+.fb .logo { color:#fff; margin-bottom:.75rem; }
+.fb p { font-size:.82rem; line-height:1.7; max-width:220px; }
+.fc h5 { font-size:.7rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.85); margin-bottom:.9rem; }
+.fc a  { display:block; font-size:.82rem; margin-bottom:.45rem; cursor:pointer; transition:color .18s; }
+.fc a:hover { color:var(--gold-l); }
+.fbot { border-top:1px solid rgba(255,255,255,.08); padding-top:1.4rem; display:flex; justify-content:space-between; align-items:center; font-size:.74rem; }
+.fbot .gl { color:var(--gold-l); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:768px){
+  .wrap{padding:0 1rem;} .nav-mid{display:none;}
+  .searchbar{grid-template-columns:1fr;} .fg{grid-template-columns:1fr 1fr;}
+  .lay-grid{grid-template-columns:1fr;} .grid-2,.grid-3{grid-template-columns:1fr;}
+  .rcard{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="wrap">
+    <span class="logo">Travel<b>Ku</b></span>
+    <div class="nav-mid">
+      <a onclick="goto('sec-dest')" class="on">Destinasi</a>
+      <a onclick="goto('sec-layanan')">Layanan</a>
+      <a onclick="goto('sec-resy')" id="lnk-resy" class="hidden">Reservasiku</a>
+      <a onclick="goto('sec-admin')" id="lnk-admin" class="hidden">Admin</a>
+    </div>
+    <div class="nav-right">
+      <div id="nav-guest" class="flex gap-1">
+        <button class="btn btn-ghost" onclick="openAuth('login')">Masuk</button>
+        <button class="btn btn-gold" onclick="openAuth('daftar')">Daftar</button>
+      </div>
+      <div id="nav-user" class="hidden flex gap-1" style="align-items:center;">
+        <span id="nav-name" style="font-size:.84rem;font-weight:500;"></span>
+        <span id="nav-chip" class="chip"></span>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"><div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Platform Reservasi Premium Indonesia</div>
+      <h1 class="hero-h1">Jelajahi Dunia,<br><i>Mulai dari Sini.</i></h1>
+      <p class="hero-p">Reservasi pesawat, kapal, bus, hotel, dan paket wisata ke ratusan destinasi lokal & internasional — mudah, aman, terpercaya.</p>
+      <div class="hero-btns">
+        <button class="btn btn-gold btn-lg" onclick="goto('sec-layanan')">Lihat Layanan</button>
+        <button class="btn btn-line btn-lg" onclick="goto('sec-dest')">Eksplorasi Destinasi</button>
+      </div>
+      <div class="searchbar">
+        <div class="field">
+          <label>Tipe Layanan</label>
+          <select id="h-tipe">
+            <option value="">Semua Tipe</option>
+            <option value="pesawat">✈️ Pesawat</option>
+            <option value="kapal">🚢 Kapal</option>
+            <option value="bus">🚌 Bus / Kereta</option>
+            <option value="mobil">🚗 Rental Mobil</option>
+            <option value="hotel">🏨 Hotel</option>
+            <option value="paket_wisata">🌟 Paket Wisata</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Destinasi</label>
+          <select id="h-dest"><option value="">Semua Destinasi</option></select>
+        </div>
+        <div class="field">
+          <label>Tanggal</label>
+          <input type="date" id="h-tgl">
+        </div>
+        <button class="btn btn-teal btn-lg" onclick="heroSearch()">🔍 Cari</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DESTINASI -->
+<section id="sec-dest">
+  <div class="wrap" style="padding-top:5.5rem;padding-bottom:5.5rem;">
+    <div class="sec-eye">Jelajahi Destinasi</div>
+    <h2 class="sec-h">Dari Sabang sampai <i>Jerusalem</i></h2>
+    <p class="sec-sub">Destinasi pilihan — lokal Indonesia hingga mancanegara terpopuler di dunia.</p>
+    <div class="pills" style="margin-top:1.8rem;">
+      <button class="pill on"  onclick="filterDest('semua',this)">Semua</button>
+      <button class="pill" onclick="filterDest('bali',this)">🌺 Bali</button>
+      <button class="pill" onclick="filterDest('lokal',this)">🇮🇩 Indonesia</button>
+      <button class="pill" onclick="filterDest('israel',this)">🕍 Israel</button>
+      <button class="pill" onclick="filterDest('jepang',this)">🗼 Jepang</button>
+      <button class="pill" onclick="filterDest('korea',this)">🇰🇷 Korea</button>
+      <button class="pill" onclick="filterDest('turki',this)">🕌 Turki</button>
+      <button class="pill" onclick="filterDest('malaysia',this)">🦁 Malaysia</button>
+      <button class="pill" onclick="filterDest('intl',this)">🌍 Internasional</button>
+    </div>
+    <div class="dest-grid" id="dest-grid"><div style="grid-column:1/-1"><div class="spin"></div></div></div>
+  </div>
+</section>
+
+<!-- LAYANAN -->
+<section id="sec-layanan">
+  <div class="wrap" style="padding-top:5.5rem;padding-bottom:5.5rem;">
+    <div class="sec-eye">Pilih Layanan</div>
+    <h2 class="sec-h">Tiket & <i>Reservasi</i></h2>
+    <p class="sec-sub">Pesawat, kapal, bus, hotel, rental mobil, hingga paket wisata all-in.</p>
+    <div class="pills" id="lay-pills" style="margin-top:1.8rem;">
+      <button class="pill on" onclick="filterLay('',this)">Semua</button>
+      <button class="pill" onclick="filterLay('pesawat',this)">✈️ Pesawat</button>
+      <button class="pill" onclick="filterLay('hotel',this)">🏨 Hotel</button>
+      <button class="pill" onclick="filterLay('kapal',this)">🚢 Kapal</button>
+      <button class="pill" onclick="filterLay('bus',this)">🚌 Bus/Kereta</button>
+      <button class="pill" onclick="filterLay('mobil',this)">🚗 Mobil</button>
+      <button class="pill" onclick="filterLay('paket_wisata',this)">🌟 Paket</button>
+    </div>
+    <div class="lay-grid" id="lay-grid"><div style="grid-column:1/-1"><div class="spin"></div></div></div>
+  </div>
+</section>
+
+<!-- RESERVASIKU -->
+<section id="sec-resy" class="hidden">
+  <div class="wrap" style="padding-top:5.5rem;padding-bottom:5.5rem;">
+    <div class="sec-eye">Riwayat Perjalananmu</div>
+    <h2 class="sec-h">Reservasi<i>ku</i></h2>
+    <div class="resy-list" id="resy-list" style="margin-top:2rem;"><div class="spin"></div></div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="sec-admin" class="hidden">
+  <div class="wrap" style="padding-top:5.5rem;padding-bottom:5.5rem;">
+    <div class="sec-eye">Panel Kontrol</div>
+    <h2 class="sec-h">Admin <i>Dashboard</i></h2>
+    <div class="stats" id="adm-stats" style="margin-top:2rem;"></div>
+    <div class="atabs">
+      <button class="atab on" onclick="aTab('reservasi',this)">📋 Kelola Reservasi</button>
+      <button class="atab" onclick="aTab('jadwal',this)">📅 Kelola Jadwal</button>
+      <button class="atab" onclick="aTab('layanan',this)">🎟️ Tambah Layanan</button>
+    </div>
+
+    <!-- pane: reservasi -->
+    <div id="ap-reservasi" class="apane on">
+      <div class="pills" style="margin-bottom:1.2rem;">
+        <button class="pill on" onclick="loadAdmRes('',this)">Semua</button>
+        <button class="pill" onclick="loadAdmRes('pending',this)">Pending</button>
+        <button class="pill" onclick="loadAdmRes('dikonfirmasi',this)">Dikonfirmasi</button>
+        <button class="pill" onclick="loadAdmRes('selesai',this)">Selesai</button>
+        <button class="pill" onclick="loadAdmRes('dibatalkan',this)">Dibatalkan</button>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Kode</th><th>Pelanggan</th><th>Layanan</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="adm-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- pane: jadwal -->
+    <div id="ap-jadwal" class="apane">
+      <div class="aform">
+        <h3>🗓️ Generate & Kelola Jadwal</h3>
+        <div class="grid-2">
+          <div class="field"><label>Pilih Layanan</label><select id="aj-lay"></select></div>
+          <div class="field"><label>Override Harga (opsional)</label><input type="number" id="aj-harga" placeholder="Kosong = harga dasar"></div>
+        </div>
+        <div class="grid-3">
+          <div class="field"><label>Tanggal Mulai</label><input type="date" id="aj-dari"></div>
+          <div class="field"><label>Tanggal Selesai</label><input type="date" id="aj-sampai"></div>
+          <div class="field"><label>Tindakan</label>
+            <select id="aj-aksi">
+              <option value="generate">✅ Generate jadwal baru</option>
+              <option value="blokir">🔴 Blokir tanggal</option>
+              <option value="buka">🟢 Buka kembali</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Alasan (opsional)</label><input type="text" id="aj-alasan" placeholder="Hari libur, maintenance..."></div>
+        <button class="btn btn-gold" onclick="doJadwalAction()">Jalankan</button>
+      </div>
+      <div id="adm-cal" class="hidden">
+        <div class="cal-wrap">
+          <div class="cal-head">
+            <h4 id="cal-lbl"></h4>
+            <div class="cal-nav"><button onclick="calMove(-1)">‹</button><button onclick="calMove(1)">›</button></div>
+          </div>
+          <div class="cal-grid" id="cal-g"></div>
+          <div class="cal-legend">
+            <span class="leg"><span class="ld" style="background:var(--green)"></span>Tersedia</span>
+            <span class="leg"><span class="ld" style="background:var(--coral)"></span>Penuh</span>
+            <span class="leg"><span class="ld" style="background:var(--blokir)"></span>Diblokir</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pane: layanan -->
+    <div id="ap-layanan" class="apane">
+      <div class="aform">
+        <h3>➕ Tambah Layanan Baru</h3>
+        <div class="grid-2">
+          <div class="field"><label>Tipe</label><select id="nl-tipe"><option value="pesawat">Pesawat</option><option value="kapal">Kapal</option><option value="bus">Bus/Kereta</option><option value="mobil">Rental Mobil</option><option value="hotel">Hotel</option><option value="paket_wisata">Paket Wisata</option></select></div>
+          <div class="field"><label>Kelas</label><select id="nl-kelas"><option value="ekonomi">Ekonomi</option><option value="bisnis">Bisnis</option><option value="first">First Class</option></select></div>
+        </div>
+        <div class="field"><label>Nama Layanan</label><input type="text" id="nl-nama" placeholder="mis. Jakarta → Bali Garuda Ekonomi"></div>
+        <div class="grid-2">
+          <div class="field"><label>Operator / Maskapai</label><input type="text" id="nl-maskapai"></div>
+          <div class="field"><label>Harga Dasar (Rp)</label><input type="number" id="nl-harga"></div>
+        </div>
+        <div class="grid-3">
+          <div class="field"><label>Dari Destinasi</label><select id="nl-dari"></select></div>
+          <div class="field"><label>Ke Destinasi</label><select id="nl-ke"></select></div>
+          <div class="field"><label>Kapasitas</label><input type="number" id="nl-kap" value="1" min="1"></div>
+        </div>
+        <div class="field"><label>Deskripsi</label><textarea id="nl-desk" placeholder="Deskripsi singkat layanan..."></textarea></div>
+        <button class="btn btn-gold" onclick="doTambahLayanan()">Simpan Layanan</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fg">
+      <div class="fb">
+        <span class="logo">Travel<b>Ku</b></span>
+        <p style="margin-top:.7rem;">Platform reservasi perjalanan premium Indonesia. Lokal maupun internasional, kami hadirkan pengalaman terbaik.</p>
+      </div>
+      <div class="fc">
+        <h5>Destinasi Lokal</h5>
+        <a>Bali</a><a>Yogyakarta</a><a>Raja Ampat</a><a>Labuan Bajo</a><a>Bromo</a><a>Toraja</a>
+      </div>
+      <div class="fc">
+        <h5>Destinasi Global</h5>
+        <a>Israel / Jerusalem</a><a>Tokyo, Jepang</a><a>Istanbul, Turki</a><a>Seoul, Korea</a><a>Dubai, UAE</a>
+      </div>
+      <div class="fc">
+        <h5>Layanan</h5>
+        <a>Tiket Pesawat</a><a>Kapal Ferry</a><a>Bus Malam</a><a>Hotel</a><a>Rental Mobil</a><a>Paket Wisata</a>
+      </div>
+    </div>
+    <div class="fbot">
+      <span>© 2026 TravelKu. Semua hak dilindungi.</span>
+      <span>Vagrant · Flask · MySQL · Nginx <span class="gl">♥</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL AUTH -->
+<div id="m-auth" class="overlay hidden" onclick="bgClose(event,'m-auth')">
+  <div class="modal">
+    <div class="modal-head"><h2>Selamat Datang</h2><button class="modal-x" onclick="closeM('m-auth')">✕</button></div>
+    <div class="modal-body">
+      <div class="atabs-auth">
+        <button class="atau on" id="tb-login" onclick="swAuth('login')">Masuk</button>
+        <button class="atau" id="tb-daftar" onclick="swAuth('daftar')">Daftar Baru</button>
+      </div>
+      <div id="f-login">
+        <div class="field"><label>Email</label><input type="email" id="li-email" placeholder="nama@email.com"></div>
+        <div class="field"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn btn-gold btn-blk btn-lg" onclick="doLogin()">Masuk</button>
+        <p style="text-align:center;margin-top:.9rem;font-size:.78rem;color:var(--ink-3);">Demo Admin: admin@travelku.id / admin123</p>
+      </div>
+      <div id="f-daftar" class="hidden">
+        <div class="field"><label>Nama Lengkap</label><input type="text" id="rg-nama" placeholder="Nama kamu"></div>
+        <div class="field"><label>Email</label><input type="email" id="rg-email" placeholder="nama@email.com"></div>
+        <div class="field"><label>Password</label><input type="password" id="rg-pw" placeholder="Min. 6 karakter" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <button class="btn btn-gold btn-blk btn-lg" onclick="doRegister()">Buat Akun</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL / BOOKING -->
+<div id="m-detail" class="overlay hidden" onclick="bgClose(event,'m-detail')">
+  <div class="modal modal-wide">
+    <div class="modal-head"><h2 id="m-detail-title">Detail</h2><button class="modal-x" onclick="closeM('m-detail')">✕</button></div>
+    <div class="modal-body" id="m-detail-body"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────
+const API  = 'http://192.168.56.20:5000/api';
+const MOCK = false; // PRODUCTION — set true only for offline preview
+
+// ─── STATE ───────────────────────────────────────────────────────────
+const S = {
+  user:null, token:null,
+  dest:[], lay:[], jadwal:[],
+  calY: new Date().getFullYear(),
+  calM: new Date().getMonth(),
+  calLayId: null,
+};
+let allDest=[], allLay=[], curLay=null, curJadwal=[], selJadwal=null;
+
+// ─── MAPS ─────────────────────────────────────────────────────────────
+const ICON  = {pesawat:'✈️',kapal:'🚢',bus:'🚌',mobil:'🚗',hotel:'🏨',paket_wisata:'🌟'};
+const LABEL = {pesawat:'Pesawat',kapal:'Kapal',bus:'Bus/Kereta',mobil:'Rental Mobil',hotel:'Hotel',paket_wisata:'Paket Wisata'};
+const EMOJI = {'Bali':'🌺','Jawa':'🏛️','Papua':'🦜','NTT':'🦎','Sulawesi':'🐟','Kalimantan':'🌳','Sumatera':'🐘','Timur Tengah':'🕌','Asia Timur':'🗼','Eropa':'🗼','Eropa-Asia':'🏰','Asia Tenggara':'🌴','Asia Selatan':'🐚'};
+const GBGS  = {
+  'Bali':'linear-gradient(140deg,#7a1a1a,#c44a28)',
+  'Jawa':'linear-gradient(140deg,#0e2a1a,#2e6a3a)',
+  'Papua':'linear-gradient(140deg,#062030,#104a70)',
+  'NTT':'linear-gradient(140deg,#2a0a1e,#6a1a4a)',
+  'Sulawesi':'linear-gradient(140deg,#122010,#305520)',
+  'Kalimantan':'linear-gradient(140deg,#0a1e0a,#285a18)',
+  'Sumatera':'linear-gradient(140deg,#201408,#5a3a18)',
+  'Timur Tengah':'linear-gradient(140deg,#201a00,#705a10)',
+  'Asia Timur':'linear-gradient(140deg,#1a0010,#601040)',
+  'Eropa':'linear-gradient(140deg,#00102a,#103070)',
+  'Eropa-Asia':'linear-gradient(140deg,#100828,#401870)',
+  'Asia Tenggara':'linear-gradient(140deg,#002818,#0a6040)',
+  'Asia Selatan':'linear-gradient(140deg,#001828,#085060)',
+};
+const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ─── API HELPERS ─────────────────────────────────────────────────────
+function authHeaders(extra={}) {
+  const h = {'Content-Type':'application/json', ...extra};
+  if (S.user) { h['X-Auth-Token']=S.token; h['X-User-Id']=String(S.user.user_id); }
+  return h;
+}
+async function GET(path) {
+  const r = await fetch(API+path, {headers: authHeaders()});
+  if (!r.ok) { const e=await r.json().catch(()=>({error:'Network error'})); throw new Error(e.error||'Error '+r.status); }
+  return r.json();
+}
+async function POST(path, body) {
+  const r = await fetch(API+path, {method:'POST', headers:authHeaders(), body:JSON.stringify(body)});
+  const d = await r.json().catch(()=>({error:'Invalid JSON'}));
+  if (!r.ok) throw new Error(d.error||'Error '+r.status);
+  return d;
+}
+// FIX: separate PUT helper → fixes 405 error on status update
+async function PUT(path, body) {
+  const r = await fetch(API+path, {method:'PUT', headers:authHeaders(), body:JSON.stringify(body)});
+  const d = await r.json().catch(()=>({error:'Invalid JSON'}));
+  if (!r.ok) throw new Error(d.error||'Error '+r.status);
+  return d;
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────
+function openAuth(tab) {
+  document.getElementById('m-auth').classList.remove('hidden');
+  swAuth(tab);
+}
+function swAuth(tab) {
+  document.getElementById('f-login').classList.toggle('hidden', tab!=='login');
+  document.getElementById('f-daftar').classList.toggle('hidden', tab!=='daftar');
+  document.getElementById('tb-login').classList.toggle('on', tab==='login');
+  document.getElementById('tb-daftar').classList.toggle('on', tab==='daftar');
+}
+async function doLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pw    = document.getElementById('li-pw').value;
+  if (!email||!pw) return toast('Isi email dan password','err');
+  try {
+    const d = await POST('/auth/login', {email, password:pw});
+    setUser(d); closeM('m-auth');
+    toast(`Selamat datang, ${d.nama}! 👋`,'ok');
+  } catch(e) { toast(e.message,'err'); }
+}
+async function doRegister() {
+  const nama  = document.getElementById('rg-nama').value.trim();
+  const email = document.getElementById('rg-email').value.trim();
+  const pw    = document.getElementById('rg-pw').value;
+  if (!nama||!email||!pw) return toast('Semua field wajib diisi','err');
+  try {
+    const d = await POST('/auth/register', {nama, email, password:pw});
+    setUser(d); closeM('m-auth');
+    toast(`Akun berhasil dibuat! 🎉`,'ok');
+  } catch(e) { toast(e.message,'err'); }
+}
+function setUser(d) {
+  S.user=d; S.token=d.token;
+  document.getElementById('nav-guest').classList.add('hidden');
+  document.getElementById('nav-user').classList.remove('hidden');
+  document.getElementById('nav-name').textContent = d.nama;
+  const c = document.getElementById('nav-chip');
+  c.textContent = d.role==='admin'?'Admin':'Member';
+  c.className = 'chip '+(d.role==='admin'?'chip-coral':'chip-teal');
+  document.getElementById('lnk-resy').classList.remove('hidden');
+  document.getElementById('sec-resy').classList.remove('hidden');
+  loadResy();
+  if (d.role==='admin') {
+    document.getElementById('lnk-admin').classList.remove('hidden');
+    document.getElementById('sec-admin').classList.remove('hidden');
+    loadAdmDash(); loadAdmSelects();
+  }
+}
+function doLogout() {
+  S.user=S.token=null;
+  document.getElementById('nav-guest').classList.remove('hidden');
+  document.getElementById('nav-user').classList.add('hidden');
+  document.getElementById('lnk-resy').classList.add('hidden');
+  document.getElementById('lnk-admin').classList.add('hidden');
+  document.getElementById('sec-resy').classList.add('hidden');
+  document.getElementById('sec-admin').classList.add('hidden');
+  toast('Berhasil keluar','inf');
+}
+
+// ─── DESTINASI ───────────────────────────────────────────────────────
+async function loadDest() {
+  try { allDest = await GET('/destinasi'); renderDest(allDest); fillDestSelect(); }
+  catch(e) { console.error(e); }
+}
+function filterDest(f, btn) {
+  document.querySelectorAll('#sec-dest .pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  let list = allDest;
+  if (f==='lokal')   list=allDest.filter(d=>d.kategori==='lokal');
+  else if (f==='intl')list=allDest.filter(d=>d.kategori==='internasional');
+  else if (f==='bali')    list=allDest.filter(d=>d.wilayah==='Bali');
+  else if (f==='israel')  list=allDest.filter(d=>d.negara==='Israel');
+  else if (f==='jepang')  list=allDest.filter(d=>d.negara==='Jepang');
+  else if (f==='korea')   list=allDest.filter(d=>d.negara==='Korea Selatan');
+  else if (f==='turki')   list=allDest.filter(d=>d.negara==='Turki');
+  else if (f==='malaysia')list=allDest.filter(d=>d.negara==='Malaysia');
+  renderDest(list);
+}
+function renderDest(list) {
+  const g = document.getElementById('dest-grid');
+  if (!list.length) { g.innerHTML='<div class="empty"><div class="ei">🗺️</div><p>Tidak ada destinasi</p></div>'; return; }
+  g.innerHTML = list.map(d => {
+    const bg = GBGS[d.wilayah]||'linear-gradient(140deg,#0a2030,#1a4a6e)';
+    const em = EMOJI[d.wilayah]||'🌍';
+    return `<div class="dcard" onclick="showDestDetail(${d.id})">
+      <div class="dcard-img">
+        <div class="dcard-img-bg" style="background:${bg};position:absolute;inset:0;"></div>
+        <div class="dcard-emoji">${em}</div>
+        <div class="dcard-veil"></div>
+        <div class="dcard-loc"><h3>${d.nama}</h3><p>${d.kota}, ${d.negara}</p></div>
+      </div>
+      <div class="dcard-body">
+        <span class="chip ${d.kategori==='lokal'?'chip-green':'chip-teal'}">${d.kategori==='lokal'?'🇮🇩 Lokal':'🌍 Internasional'}</span>
+        <p class="dcard-desc">${d.deskripsi||''}</p>
+        <div class="dcard-foot">
+          <span class="dcard-price">Lihat layanan</span>
+          <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();showDestDetail(${d.id})">Jelajahi →</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showDestDetail(id) {
+  const d = allDest.find(x=>x.id===id); if(!d) return;
+  const em = EMOJI[d.wilayah]||'🌍';
+  const bg = GBGS[d.wilayah]||'#1a4a6e';
+  const rel = allLay.filter(l=>l.ke_nama===d.nama).slice(0,4);
+  let html = `<div style="margin:-1.1rem -1.4rem 1.1rem;height:150px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:5rem;">${em}</div>
+    <span class="chip ${d.kategori==='lokal'?'chip-green':'chip-teal'}">${d.kota}, ${d.negara}</span>
+    <p style="margin:1rem 0;color:var(--ink-3);line-height:1.7;font-size:.88rem;">${d.deskripsi||''}</p>`;
+  if (rel.length) {
+    html += `<h4 style="font-family:var(--serif);margin-bottom:.75rem;">Layanan Tersedia</h4>`;
+    html += rel.map(l=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem;background:var(--paper-2);border-radius:var(--r);margin-bottom:.45rem;">
+      <div><span>${ICON[l.tipe]||'🎟️'}</span><strong style="font-size:.84rem;margin-left:.35rem;">${l.nama}</strong>
+      <div style="font-size:.72rem;color:var(--ink-3);margin-top:.1rem;">${l.maskapai||''} · ${l.kelas}</div></div>
+      <div style="text-align:right;"><div style="font-family:var(--mono);font-size:.84rem;color:var(--gold-d);">${rp(l.harga_dasar)}</div>
+      <button class="btn btn-gold btn-sm" style="margin-top:.3rem;" onclick="closeM('m-detail');openLay(${l.id})">Pesan</button></div>
+    </div>`).join('');
+  }
+  document.getElementById('m-detail-title').textContent = d.nama;
+  document.getElementById('m-detail-body').innerHTML = html;
+  document.getElementById('m-detail').classList.remove('hidden');
+}
+function fillDestSelect() {
+  const s = document.getElementById('h-dest');
+  allDest.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=`${d.nama} (${d.negara})`; s.appendChild(o); });
+}
+
+// ─── LAYANAN ─────────────────────────────────────────────────────────
+async function loadLay() {
+  try { allLay = await GET('/layanan'); renderLay(allLay); }
+  catch(e) { console.error(e); }
+}
+function filterLay(tipe, btn) {
+  document.querySelectorAll('#lay-pills .pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderLay(tipe ? allLay.filter(l=>l.tipe===tipe) : allLay);
+}
+function renderLay(list) {
+  const g = document.getElementById('lay-grid');
+  if (!list.length) { g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎟️</div><p>Tidak ada layanan</p></div>'; return; }
+  g.innerHTML = list.map(l => {
+    const icon   = ICON[l.tipe]||'🎟️';
+    const fasil  = (l.fasilitas||[]).slice(0,4).map(f=>`<span class="tag">${f}</span>`).join('');
+    const klabel = {ekonomi:'Ekonomi',bisnis:'Bisnis',first:'First Class'}[l.kelas]||l.kelas;
+    return `<div class="lcard">
+      <div class="lcard-head lh-${l.tipe}">
+        <div><div class="lcard-icon">${icon}</div><div class="lcard-typelbl">${LABEL[l.tipe]||l.tipe}</div></div>
+        <span class="chip chip-gold">${klabel}</span>
+      </div>
+      <div class="lcard-body">
+        <div class="lcard-name">${l.nama}</div>
+        <div class="lcard-route"><span>${l.dari_nama||''}</span><span class="arr">→</span><span>${l.ke_nama||''}, ${l.ke_negara||''}</span></div>
+        <div class="lcard-desc">${l.deskripsi||''}</div>
+        <div class="tags">${fasil}</div>
+      </div>
+      <div class="lcard-foot">
+        <div class="lcard-price">${rp(l.harga_dasar)}<small>/ orang${l.tipe==='hotel'?' / malam':''}</small></div>
+        <button class="btn btn-gold btn-sm" onclick="openLay(${l.id})">Pesan Sekarang</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── BOOKING ─────────────────────────────────────────────────────────
+async function openLay(id) {
+  const lay = allLay.find(l=>l.id===id); if(!lay) return;
+  curLay=lay; selJadwal=null;
+  try { curJadwal = await GET(`/jadwal/${id}`); }
+  catch(e) { curJadwal=[]; toast('Gagal muat jadwal: '+e.message,'err'); }
+  const icon  = ICON[lay.tipe]||'🎟️';
+  const fasil = (lay.fasilitas||[]).map(f=>`<span class="tag">${f}</span>`).join('');
+  document.getElementById('m-detail-title').textContent = `${icon} ${lay.nama}`;
+  document.getElementById('m-detail-body').innerHTML = `
+    <div style="display:flex;gap:.9rem;align-items:center;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid var(--paper-2);">
+      <div style="font-size:2.8rem;">${icon}</div>
+      <div>
+        <h3 style="font-family:var(--serif);font-size:1.05rem;font-weight:600;">${lay.nama}</h3>
+        <p style="font-size:.76rem;color:var(--ink-3);">${lay.maskapai||''} · ${lay.kelas} · ${lay.dari_nama||''} → ${lay.ke_nama||''}</p>
+        <div class="tags" style="margin-top:.35rem;">${fasil}</div>
+      </div>
+    </div>
+    <h4 style="font-family:var(--serif);font-size:1rem;margin-bottom:.7rem;">📅 Pilih Tanggal</h4>
+    <div class="cal-wrap">
+      <div class="cal-head"><h4 id="bk-cal-lbl"></h4>
+        <div class="cal-nav"><button onclick="bkCalMove(-1)">‹</button><button onclick="bkCalMove(1)">›</button></div>
+      </div>
+      <div class="cal-grid" id="bk-cal-g"></div>
+      <div class="cal-legend">
+        <span class="leg"><span class="ld" style="background:var(--green)"></span>Tersedia — klik untuk pilih</span>
+        <span class="leg"><span class="ld" style="background:var(--coral)"></span>Penuh</span>
+        <span class="leg"><span class="ld" style="background:var(--blokir)"></span>Diblokir</span>
+      </div>
+    </div>
+    <div id="bk-form" class="hidden" style="margin-top:1.1rem;">
+      <div class="bsummary" id="bk-sum"></div>
+      <div class="field"><label>Nama Pemesan</label><input type="text" id="bk-nama"></div>
+      <div class="field"><label>Email Konfirmasi</label><input type="email" id="bk-email"></div>
+      <div class="field"><label>No. Telepon</label><input type="tel" id="bk-telp" placeholder="+62..."></div>
+      <div class="field"><label>Jumlah Tiket / Kamar</label><input type="number" id="bk-jml" value="1" min="1" max="10" oninput="updSum()"></div>
+      <div class="field"><label>Catatan (opsional)</label><textarea id="bk-cat" placeholder="Permintaan khusus..."></textarea></div>
+      <button class="btn btn-gold btn-blk btn-lg" onclick="submitBk()">✈️ Konfirmasi Reservasi</button>
+    </div>`;
+  document.getElementById('m-detail').classList.remove('hidden');
+  if (S.user) {
+    document.getElementById('bk-nama').value  = S.user.nama||'';
+    document.getElementById('bk-email').value = S.user.email||'';
+  }
+  S.calY=new Date().getFullYear(); S.calM=new Date().getMonth();
+  renderBkCal();
+}
+
+function renderBkCal() {
+  const lbl = document.getElementById('bk-cal-lbl'); if(!lbl) return;
+  lbl.textContent = `${MONTHS[S.calM]} ${S.calY}`;
+  const g = document.getElementById('bk-cal-g');
+  g.innerHTML = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d=>`<div class="cal-lbl">${d}</div>`).join('');
+  const first=new Date(S.calY,S.calM,1), last=new Date(S.calY,S.calM+1,0);
+  const today=new Date(); today.setHours(0,0,0,0);
+  for(let i=0;i<first.getDay();i++) g.innerHTML+=`<div class="cal-day dim"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const dt=new Date(S.calY,S.calM,d);
+    const iso=dt.toISOString().split('T')[0];
+    const j=curJadwal.find(x=>x.tanggal===iso);
+    const past=dt<today;
+    let cls='cal-day', dot='', oc='';
+    if(past){ cls+=' dim'; }
+    else if(j){
+      if(j.status==='tersedia'){
+        cls+=' avail'; dot=`<div class="cdot cd-avail"></div>`;
+        oc=`onclick="pickDate('${iso}',${j.id},${j.harga_efektif},${j.kapasitas_sisa})"`;
+      } else if(j.status==='penuh'){
+        cls+=' full'; dot=`<div class="cdot cd-full"></div>`;
+      } else {
+        cls+=' block'; dot=`<div class="cdot cd-block"></div>`;
+      }
+    } else { cls+=' dim'; }
+    if(dt.getTime()===today.getTime()) cls+=' today';
+    if(selJadwal&&selJadwal.tanggal===iso) cls+=' sel';
+    g.innerHTML+=`<div class="${cls}" ${oc}><div class="dn">${d}</div>${dot}</div>`;
+  }
+}
+function bkCalMove(dir){
+  S.calM+=dir;
+  if(S.calM>11){S.calM=0;S.calY++;} if(S.calM<0){S.calM=11;S.calY--;}
+  renderBkCal();
+}
+function pickDate(tanggal,jid,harga,sisa){
+  if(!S.user){ closeM('m-detail'); openAuth('login'); toast('Login untuk memesan','inf'); return; }
+  selJadwal={tanggal,jadwal_id:jid,harga,sisa};
+  renderBkCal();
+  document.getElementById('bk-form').classList.remove('hidden');
+  updSum();
+  document.getElementById('bk-form').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function updSum(){
+  if(!selJadwal) return;
+  const jml=parseInt(document.getElementById('bk-jml')?.value)||1;
+  const tot=selJadwal.harga*jml;
+  document.getElementById('bk-sum').innerHTML=`
+    <h4>📋 Ringkasan Pemesanan</h4>
+    <div class="brow"><span>Tanggal</span><span>${selJadwal.tanggal}</span></div>
+    <div class="brow"><span>Layanan</span><span>${curLay?.nama||''}</span></div>
+    <div class="brow"><span>Harga / unit</span><span>${rp(selJadwal.harga)}</span></div>
+    <div class="brow"><span>Jumlah</span><span>× ${jml}</span></div>
+    <div class="brow"><span>Sisa kapasitas</span><span>${selJadwal.sisa}</span></div>
+    <div class="brow"><span>Total Pembayaran</span><span>${rp(tot)}</span></div>`;
+}
+async function submitBk(){
+  if(!selJadwal) return toast('Pilih tanggal dulu','err');
+  if(!S.user)   return openAuth('login');
+  const nama  = document.getElementById('bk-nama').value.trim();
+  const email = document.getElementById('bk-email').value.trim();
+  const telp  = document.getElementById('bk-telp').value.trim();
+  const jml   = parseInt(document.getElementById('bk-jml').value)||1;
+  const cat   = document.getElementById('bk-cat').value;
+  if(!nama||!email) return toast('Nama dan email wajib diisi','err');
+  try {
+    const r = await POST('/reservasi',{jadwal_id:selJadwal.jadwal_id,jumlah_tiket:jml,nama_pemesan:nama,email_pemesan:email,telepon:telp,catatan:cat});
+    closeM('m-detail');
+    toast(`🎉 ${r.message} Kode: ${r.kode_booking}`,'ok');
+    loadResy();
+  } catch(e){ toast(e.message,'err'); }
+}
+
+// ─── RESERVASIKU ─────────────────────────────────────────────────────
+async function loadResy(){
+  const el=document.getElementById('resy-list');
+  el.innerHTML='<div class="spin"></div>';
+  try {
+    const data=await GET('/reservasi/saya');
+    if(!data.length){ el.innerHTML='<div class="empty"><div class="ei">🎟️</div><p>Belum ada reservasi. Yuk pesan!</p></div>'; return; }
+    const CHIP={pending:'chip-gold',dikonfirmasi:'chip-teal',selesai:'chip-green',dibatalkan:'chip-coral'};
+    el.innerHTML=data.map(r=>`<div class="rcard">
+      <div class="rcard-ico">${ICON[r.tipe]||'🎟️'}</div>
+      <div class="rcard-info">
+        <h4>${r.layanan_nama||'Layanan'}</h4>
+        <p>📍 ${r.dest_nama||''}, ${r.dest_negara||''} &nbsp;·&nbsp; 📅 ${r.tanggal||''}</p>
+        <p style="margin-top:.15rem;">Pemesan: ${r.nama_pemesan||''} &nbsp;·&nbsp; ${r.jumlah_tiket||1} tiket</p>
+      </div>
+      <div class="rcard-right">
+        <div class="rcard-price">${rp(r.total_harga)}</div>
+        <span class="chip ${CHIP[r.status]||'chip-dark'}" style="margin-top:.25rem;">${r.status}</span>
+        <div class="rcard-code">${r.kode_booking}</div>
+        ${r.status!=='dibatalkan'&&r.status!=='selesai'?`<button class="btn btn-coral btn-sm" style="margin-top:.35rem;" onclick="batalResy(${r.id})">Batalkan</button>`:''}
+      </div>
+    </div>`).join('');
+  } catch(e){ el.innerHTML=`<div class="empty"><p>Gagal memuat: ${e.message}</p></div>`; }
+}
+async function batalResy(id){
+  if(!confirm('Batalkan reservasi ini?')) return;
+  try { await POST(`/reservasi/${id}/batalkan`,{}); toast('Reservasi dibatalkan','inf'); loadResy(); }
+  catch(e){ toast(e.message,'err'); }
+}
+
+// ─── ADMIN ───────────────────────────────────────────────────────────
+async function loadAdmDash(){
+  try {
+    const d=await GET('/admin/dashboard');
+    const totRev=(d.reservasi_stats||[]).reduce((a,s)=>a+(s.revenue||0),0);
+    const totBk =(d.reservasi_stats||[]).reduce((a,s)=>a+(s.jumlah||0),0);
+    document.getElementById('adm-stats').innerHTML=`
+      <div class="scard"><div class="sl">Pelanggan</div><div class="sv">${d.total_users||0}</div><div class="ss">Akun terdaftar</div></div>
+      <div class="scard"><div class="sl">Total Booking</div><div class="sv">${totBk}</div><div class="ss">Semua status</div></div>
+      <div class="scard"><div class="sl">Total Revenue</div><div class="sv" style="font-size:1.4rem;">${rp(totRev)}</div><div class="ss">Semua transaksi</div></div>
+      ${(d.reservasi_stats||[]).map(s=>`<div class="scard"><div class="sl">${s.status}</div><div class="sv">${s.jumlah||0}</div><div class="ss">${rp(s.revenue||0)}</div></div>`).join('')}`;
+  } catch(e){ console.error(e); }
+}
+function aTab(tab,btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.apane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('ap-'+tab).classList.add('on');
+  if(tab==='reservasi') loadAdmRes('',document.querySelector('#ap-reservasi .pill'));
+}
+async function loadAdmRes(status,btn){
+  if(btn){ document.querySelectorAll('#ap-reservasi .pill').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+  const tbody=document.getElementById('adm-tbody');
+  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;"><div class="spin" style="margin:0 auto;"></div></td></tr>';
+  try {
+    const data=await GET(status?`/admin/reservasi?status=${status}`:'/admin/reservasi');
+    if(!data.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink-3);">Tidak ada data</td></tr>'; return; }
+    const OPTS=['pending','dikonfirmasi','selesai','dibatalkan'];
+    const CHIP={pending:'chip-gold',dikonfirmasi:'chip-teal',selesai:'chip-green',dibatalkan:'chip-coral'};
+    tbody.innerHTML=data.map(r=>`<tr>
+      <td style="font-family:var(--mono);font-size:.74rem;">${r.kode_booking}</td>
+      <td><strong>${r.user_nama||''}</strong><br><small style="color:var(--ink-3)">${r.user_email||''}</small></td>
+      <td>${ICON[r.tipe]||''} ${r.layanan_nama||''}</td>
+      <td>${r.tanggal||''}</td>
+      <td style="font-family:var(--mono);">${rp(r.total_harga)}</td>
+      <td><span class="chip ${CHIP[r.status]||'chip-dark'}">${r.status}</span></td>
+      <td>
+        <select onchange="admUpdStatus(${r.id},this.value)" style="font-size:.76rem;padding:.28rem .5rem;border:1px solid var(--paper-3);border-radius:4px;cursor:pointer;background:#fff;">
+          ${OPTS.map(s=>`<option value="${s}"${s===r.status?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`).join('');
+  } catch(e){ tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--coral);padding:1rem;">${e.message}</td></tr>`; }
+}
+
+// FIX: use PUT (not POST) → backend route accepts PUT+POST, frontend now uses PUT
+async function admUpdStatus(rid,status){
+  try {
+    await PUT(`/admin/reservasi/${rid}/status`,{status});
+    toast(`Status → ${status}`,'ok');
+    loadAdmDash();
+  } catch(e){ toast(e.message,'err'); }
+}
+
+async function doJadwalAction(){
+  const lid  =document.getElementById('aj-lay').value;
+  const dari =document.getElementById('aj-dari').value;
+  const smp  =document.getElementById('aj-sampai').value;
+  const aksi =document.getElementById('aj-aksi').value;
+  const alasan=document.getElementById('aj-alasan').value;
+  const harga=document.getElementById('aj-harga').value||null;
+  if(!lid||!dari) return toast('Pilih layanan dan tanggal','err');
+  try {
+    let r;
+    if(aksi==='generate'){
+      r=await POST('/admin/jadwal/generate',{layanan_id:parseInt(lid),tanggal_mulai:dari,tanggal_selesai:smp||dari,harga_override:harga?parseFloat(harga):null});
+    } else {
+      r=await POST('/admin/jadwal/blokir',{layanan_id:parseInt(lid),tanggal_mulai:dari,tanggal_selesai:smp||dari,aksi,alasan});
+    }
+    toast(r.message||'Berhasil','ok');
+    S.calLayId=parseInt(lid); S.calY=new Date().getFullYear(); S.calM=new Date().getMonth();
+    document.getElementById('adm-cal').classList.remove('hidden');
+    await loadAdmCal();
+  } catch(e){ toast(e.message,'err'); }
+}
+async function loadAdmCal(){
+  try { const j=await GET(`/jadwal/${S.calLayId}`); S.jadwal=j; renderAdmCal(); }
+  catch(e){ console.error(e); }
+}
+function renderAdmCal(){
+  document.getElementById('cal-lbl').textContent=`${MONTHS[S.calM]} ${S.calY}`;
+  const g=document.getElementById('cal-g');
+  g.innerHTML=['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d=>`<div class="cal-lbl">${d}</div>`).join('');
+  const first=new Date(S.calY,S.calM,1),last=new Date(S.calY,S.calM+1,0);
+  for(let i=0;i<first.getDay();i++) g.innerHTML+=`<div class="cal-day dim"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const iso=`${S.calY}-${String(S.calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const j=(S.jadwal||[]).find(x=>x.tanggal===iso);
+    let cls='cal-day',dot='';
+    if(j){
+      if(j.status==='tersedia'){cls+=' avail';dot=`<div class="cdot cd-avail"></div>`;}
+      else if(j.status==='penuh'){cls+=' full';dot=`<div class="cdot cd-full"></div>`;}
+      else{cls+=' block';dot=`<div class="cdot cd-block"></div>`;}
+    } else {cls+=' dim';}
+    g.innerHTML+=`<div class="${cls}" title="${j?j.status+' · sisa:'+j.kapasitas_sisa:'tidak ada jadwal'}"><div class="dn">${d}</div>${dot}</div>`;
+  }
+}
+function calMove(dir){ S.calM+=dir; if(S.calM>11){S.calM=0;S.calY++;} if(S.calM<0){S.calM=11;S.calY--;} renderAdmCal(); }
+
+function loadAdmSelects(){
+  const sj=document.getElementById('aj-lay');
+  const sd=document.getElementById('nl-dari');
+  const sk=document.getElementById('nl-ke');
+  allLay.forEach(l=>{ const o=document.createElement('option'); o.value=l.id; o.textContent=`${ICON[l.tipe]} ${l.nama}`; sj.appendChild(o); });
+  allDest.forEach(d=>{
+    const o1=document.createElement('option'); o1.value=d.id; o1.textContent=`${d.nama} (${d.negara})`;
+    const o2=o1.cloneNode(true); sd.appendChild(o1); sk.appendChild(o2);
+  });
+}
+async function doTambahLayanan(){
+  const body={
+    tipe:    document.getElementById('nl-tipe').value,
+    kelas:   document.getElementById('nl-kelas').value,
+    nama:    document.getElementById('nl-nama').value,
+    maskapai:document.getElementById('nl-maskapai').value,
+    harga_dasar:parseFloat(document.getElementById('nl-harga').value)||0,
+    dari_destinasi_id:parseInt(document.getElementById('nl-dari').value),
+    ke_destinasi_id:  parseInt(document.getElementById('nl-ke').value),
+    kapasitas:parseInt(document.getElementById('nl-kap').value)||1,
+    deskripsi:document.getElementById('nl-desk').value,
+    fasilitas:[],
+  };
+  if(!body.nama||!body.harga_dasar) return toast('Nama dan harga wajib diisi','err');
+  try { await POST('/admin/layanan',body); toast('Layanan ditambahkan','ok'); await loadLay(); }
+  catch(e){ toast(e.message,'err'); }
+}
+
+// ─── HERO SEARCH ─────────────────────────────────────────────────────
+function heroSearch(){
+  const tipe=document.getElementById('h-tipe').value;
+  goto('sec-layanan');
+  setTimeout(()=>{
+    renderLay(tipe?allLay.filter(l=>l.tipe===tipe):allLay);
+    document.querySelectorAll('#lay-pills .pill').forEach(b=>b.classList.remove('on'));
+    const m=[...document.querySelectorAll('#lay-pills .pill')].find(b=>b.getAttribute('onclick')?.includes(`'${tipe}'`));
+    if(m) m.classList.add('on'); else document.querySelector('#lay-pills .pill').classList.add('on');
+  },700);
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────
+function closeM(id){ document.getElementById(id).classList.add('hidden'); }
+function bgClose(e,id){ if(e.target.classList.contains('overlay')) closeM(id); }
+function goto(id){ document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
+function rp(n){
+  const v=parseFloat(n)||0;
+  if(v>=1e9)  return 'Rp '+(v/1e9).toFixed(1).replace('.0','')+'M';
+  if(v>=1e6)  return 'Rp '+(v/1e6).toFixed(1).replace('.0','')+'jt';
+  if(v>=1000) return 'Rp '+(v/1000).toFixed(0)+'rb';
+  return 'Rp '+v.toLocaleString('id-ID');
+}
+function toast(msg,type='inf',dur=3500){
+  const tc=document.getElementById('toasts');
+  const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg; tc.appendChild(t);
+  setTimeout(()=>{ t.style.animation='toastOut .25s ease forwards'; setTimeout(()=>t.remove(),250); },dur);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('h-tgl').min = new Date().toISOString().split('T')[0];
+  await loadDest();
+  await loadLay();
+  // nav highlight on scroll
+  const ids=['sec-dest','sec-layanan','sec-resy','sec-admin'];
+  window.addEventListener('scroll',()=>{
+    ids.forEach(id=>{
+      const el=document.getElementById(id); if(!el) return;
+      const r=el.getBoundingClientRect();
+      if(r.top<=90&&r.bottom>90){
+        document.querySelectorAll('.nav-mid a').forEach(a=>a.classList.remove('on'));
+        const lnk=document.querySelector(`.nav-mid a[onclick*="${id}"]`);
+        if(lnk) lnk.classList.add('on');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

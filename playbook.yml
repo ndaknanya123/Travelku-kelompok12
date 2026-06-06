@@ -1,0 +1,162 @@
+---
+- name: Full Stack TravelKu
+  hosts: localhost
+  connection: local
+  become: yes
+  vars:
+    db_host: "192.168.56.21"
+    db_name: "db_travel_reservasi"
+    db_user: "travel_user"
+    db_pass: "travel_pass123"
+
+  tasks:
+
+    # ══════════════════════════════════════════
+    # DATABASE
+    # ══════════════════════════════════════════
+    - name: "[DB] Install MySQL"
+      apt:
+        name: [mysql-server, mysql-client, python3-mysqldb]
+        state: present
+        update_cache: yes
+      when: target_node == 'database'
+
+    - name: "[DB] Izinkan remote connection"
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+      when: target_node == 'database'
+
+    - name: "[DB] Restart MySQL"
+      service:
+        name: mysql
+        state: restarted
+        enabled: yes
+      when: target_node == 'database'
+
+    - name: "[DB] Buat database & user"
+      shell: |
+        mysql -u root -e "CREATE DATABASE IF NOT EXISTS {{ db_name }} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        mysql -u root -e "CREATE USER IF NOT EXISTS '{{ db_user }}'@'%' IDENTIFIED BY '{{ db_pass }}';"
+        mysql -u root -e "GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'%';"
+        mysql -u root -e "FLUSH PRIVILEGES;"
+      when: target_node == 'database'
+
+    - name: "[DB] Import schema"
+      shell: mysql -u root {{ db_name }} < /vagrant/database/schema.sql
+      when: target_node == 'database'
+      ignore_errors: yes
+
+    # ══════════════════════════════════════════
+    # BACKEND
+    # ══════════════════════════════════════════
+    - name: "[BACKEND] Install dependencies"
+      apt:
+        name: [python3-pip, python3-flask, python3-mysqldb, libmysqlclient-dev, python3-dev, build-essential]
+        state: present
+        update_cache: yes
+      when: target_node == 'backend'
+
+    - name: "[BACKEND] Install flask-cors"
+      pip:
+        name: [flask-cors, mysqlclient]
+        executable: pip3
+      when: target_node == 'backend'
+
+    - name: "[BACKEND] Deploy app.py"
+      copy:
+        src: /vagrant/backend/app.py
+        dest: /home/vagrant/app.py
+        owner: vagrant
+        group: vagrant
+        mode: '0644'
+      when: target_node == 'backend'
+
+    - name: "[BACKEND] Buat systemd service"
+      copy:
+        dest: /etc/systemd/system/travelku.service
+        content: |
+          [Unit]
+          Description=TravelKu Backend API
+          After=network.target
+
+          [Service]
+          User=vagrant
+          WorkingDirectory=/home/vagrant
+          Environment="DB_HOST={{ db_host }}"
+          Environment="DB_USER={{ db_user }}"
+          Environment="DB_PASS={{ db_pass }}"
+          Environment="DB_NAME={{ db_name }}"
+          Environment="SECRET_KEY=travelku_prod_secret_2026"
+          ExecStart=/usr/bin/python3 /home/vagrant/app.py
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+      when: target_node == 'backend'
+
+    - name: "[BACKEND] Start service"
+      systemd:
+        name: travelku
+        enabled: yes
+        state: restarted
+        daemon_reload: yes
+      when: target_node == 'backend'
+
+    # ══════════════════════════════════════════
+    # FRONTEND
+    # ══════════════════════════════════════════
+    - name: "[FRONTEND] Install Nginx"
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: target_node == 'frontend'
+
+    - name: "[FRONTEND] Deploy index.html"
+      copy:
+        src: /vagrant/frontend/index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      when: target_node == 'frontend'
+
+    - name: "[FRONTEND] Konfigurasi Nginx"
+      copy:
+        dest: /etc/nginx/sites-available/travelku
+        content: |
+          server {
+              listen 80 default_server;
+              listen [::]:80 default_server;
+              server_name _;
+              root /var/www/html;
+              index index.html;
+
+              add_header X-Frame-Options "SAMEORIGIN";
+              add_header X-Content-Type-Options "nosniff";
+
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
+
+              gzip on;
+              gzip_types text/plain text/css application/javascript application/json;
+          }
+      when: target_node == 'frontend'
+
+    - name: "[FRONTEND] Aktifkan Nginx config"
+      shell: |
+        ln -sf /etc/nginx/sites-available/travelku /etc/nginx/sites-enabled/travelku
+        rm -f /etc/nginx/sites-enabled/default
+        nginx -t && systemctl reload nginx
+      when: target_node == 'frontend'
+
+    - name: "[FRONTEND] Start Nginx"
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      when: target_node == 'frontend'
