@@ -51,7 +51,7 @@ VM Database  192.168.56.21  — MySQL, penyimpanan data
 ## Instalasi
 
 ```bash
-git clone https://github.com/username/travelku.git
+git clone https://github.com/ndaknanya123/travelku.git
 cd travelku
 vagrant up
 ```
