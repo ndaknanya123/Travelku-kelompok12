@@ -133,23 +133,6 @@ POST /api/admin/layanan               tambah layanan baru
 
 ---
 
-## Mekanisme Interlocking
-
-Untuk mencegah double booking, backend menggunakan row-level lock MySQL saat proses booking berlangsung:
-
-```python
-# Lock baris jadwal sebelum cek
-SELECT * FROM jadwal WHERE id = ? FOR UPDATE;
-
-# Cek status dan kapasitas
-# Cek user tidak booking hari + layanan yang sama
-# Baru insert reservasi dan kurangi kapasitas
-```
-
-Kombinasi `FOR UPDATE` dan constraint `UNIQUE(layanan_id, tanggal)` di tabel jadwal memastikan tidak ada race condition meskipun ada banyak request bersamaan.
-
----
-
 ## Perintah Berguna
 
 ```bash
