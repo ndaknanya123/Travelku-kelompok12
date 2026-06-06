@@ -2,11 +2,15 @@
 
 Aplikasi web pemesanan tiket perjalanan yang mengintegrasikan berbagai jenis layanan transportasi dan akomodasi dalam satu platform. Dibangun dengan arsitektur tiga-tier menggunakan Vagrant untuk otomasi infrastruktur.
 
-# Latar Belakang
+---
+
+## Latar Belakang
 
 Dengan meningkatnya kebutuhan travel baik dalam maupun luar negeri, mobilitas masyarakat terus berkembang pesat. Namun proses pemesanan tiket dan akomodasi masih sering terfragmentasi dan rentan terhadap konflik jadwal seperti double booking. TravelKu hadir sebagai solusi terpadu yang mempertemukan kebutuhan pelanggan akan kemudahan reservasi dengan kebutuhan admin akan kendali penuh terhadap operasional layanan.
 
-# Stack
+---
+
+## Stack
 
 | Komponen | Teknologi |
 |---|---|
@@ -15,10 +19,13 @@ Dengan meningkatnya kebutuhan travel baik dalam maupun luar negeri, mobilitas ma
 | Database | MySQL 8 |
 | Infrastruktur | Vagrant + VirtualBox + Ansible |
 
-# Arsitektur
+---
+
+## Arsitektur
 
 Tiga VM berjalan di jaringan private VirtualBox:
 
+```
 Browser (http://192.168.56.22)
     │
     ▼
@@ -29,25 +36,35 @@ VM Backend   192.168.56.20  — Flask :5000, semua logika bisnis
     │
     ▼  SQL query
 VM Database  192.168.56.21  — MySQL, penyimpanan data
+```
 
-# Prasyarat
+---
+
+## Prasyarat
 
 - VirtualBox 6.1+
 - Vagrant 2.3+
 - RAM kosong minimal 4GB (3 VM masing-masing 1GB)
 
-# Instalasi
+---
 
+## Instalasi
+
+```bash
 git clone https://github.com/username/travelku.git
 cd travelku
 vagrant up
+```
 
-Proses pertama kali membutuhkan sekitar 10–15 menit. Setelah selesai buka browser ke http://192.168.56.22
+Proses pertama kali membutuhkan sekitar 10–15 menit. Setelah selesai buka browser ke `http://192.168.56.22`.
 
-Akun admin bawaan: admin@travelku.id / admin123
+Akun admin bawaan: `admin@travelku.id` / `admin123`
 
-# Struktur Folder
+---
 
+## Struktur Folder
+
+```
 travelku/
 ├── Vagrantfile
 ├── playbook.yml
@@ -57,8 +74,11 @@ travelku/
 │   └── app.py
 └── frontend/
     └── index.html
+```
 
-# Fitur
+---
+
+## Fitur
 
 **Pelanggan**
 - Register dan login, bisa buat akun sebanyak apapun
@@ -75,29 +95,45 @@ travelku/
 - Blokir atau buka kembali tanggal tertentu beserta alasannya
 - Tambah layanan baru langsung dari panel
 
-# API Endpoints
+---
 
+## API Endpoints
 
+Base URL: `http://192.168.56.20:5000`
 
+**Publik**
+
+```
 GET  /api/health                      cek status backend dan koneksi database
 POST /api/auth/register               daftar akun baru
 POST /api/auth/login                  login, return token
 GET  /api/destinasi                   list destinasi
 GET  /api/layanan?tipe=pesawat        list layanan dengan filter opsional
 GET  /api/jadwal/:layanan_id          jadwal 90 hari ke depan
+```
 
+**Butuh autentikasi** (header `X-Auth-Token` + `X-User-Id`)
+
+```
 POST /api/reservasi                   buat reservasi
 GET  /api/reservasi/saya              riwayat reservasi user
 POST /api/reservasi/:id/batalkan      batalkan reservasi
+```
 
+**Admin only**
+
+```
 GET  /api/admin/dashboard             statistik dan revenue
 GET  /api/admin/reservasi             semua reservasi
 PUT  /api/admin/reservasi/:id/status  update status
 POST /api/admin/jadwal/generate       generate jadwal range tanggal
 POST /api/admin/jadwal/blokir         blokir atau buka tanggal
 POST /api/admin/layanan               tambah layanan baru
+```
 
-# Mekanisme Interlocking
+---
+
+## Mekanisme Interlocking
 
 Untuk mencegah double booking, backend menggunakan row-level lock MySQL saat proses booking berlangsung:
 
@@ -139,3 +175,26 @@ vagrant halt
 
 # Reset total
 vagrant destroy -f && vagrant up
+```
+
+---
+
+## Troubleshooting
+
+**`Address already in use` saat jalankan `python3 app.py` manual**
+Service sudah berjalan otomatis via systemd. Tidak perlu jalankan manual — cukup `sudo systemctl status travelku` untuk cek statusnya.
+
+**Kalender kosong, tidak ada tanggal yang bisa dipilih**
+Jadwal perlu di-generate lebih dulu. Login sebagai admin → Kelola Jadwal → pilih layanan → set tanggal → Generate.
+
+**Error `Decimal is not JSON serializable`**
+Pastikan menggunakan `app.py` versi terbaru yang sudah ada class `SafeEncoder` dan fungsi `clean()`.
+
+**Update status reservasi return 405**
+Pastikan route di `app.py` sudah `methods=["PUT", "POST"]` dan frontend menggunakan method `PUT` saat hit endpoint status.
+
+---
+
+## Lisensi
+
+MIT
