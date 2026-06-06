@@ -120,7 +120,7 @@ GET  /api/reservasi/saya              riwayat reservasi user
 POST /api/reservasi/:id/batalkan      batalkan reservasi
 ```
 
-**Admin only**
+**Admin**
 
 ```
 GET  /api/admin/dashboard             statistik dan revenue
