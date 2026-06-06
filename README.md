@@ -112,7 +112,7 @@ GET  /api/layanan?tipe=pesawat        list layanan dengan filter opsional
 GET  /api/jadwal/:layanan_id          jadwal 90 hari ke depan
 ```
 
-**Butuh autentikasi** (header `X-Auth-Token` + `X-User-Id`)
+**Butuh akun**
 
 ```
 POST /api/reservasi                   buat reservasi
@@ -160,24 +160,3 @@ vagrant halt
 vagrant destroy -f && vagrant up
 ```
 
----
-
-## Troubleshooting
-
-**`Address already in use` saat jalankan `python3 app.py` manual**
-Service sudah berjalan otomatis via systemd. Tidak perlu jalankan manual — cukup `sudo systemctl status travelku` untuk cek statusnya.
-
-**Kalender kosong, tidak ada tanggal yang bisa dipilih**
-Jadwal perlu di-generate lebih dulu. Login sebagai admin → Kelola Jadwal → pilih layanan → set tanggal → Generate.
-
-**Error `Decimal is not JSON serializable`**
-Pastikan menggunakan `app.py` versi terbaru yang sudah ada class `SafeEncoder` dan fungsi `clean()`.
-
-**Update status reservasi return 405**
-Pastikan route di `app.py` sudah `methods=["PUT", "POST"]` dan frontend menggunakan method `PUT` saat hit endpoint status.
-
----
-
-## Lisensi
-
-MIT
